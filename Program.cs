@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using ToDo_App_Backend.DbContext;
-//using ToDo_App_Backend.DbContext;
+//using ToDo_App_Backend.Interfaces;
+using ToDo_App_Backend.MyAppDbContext;
+//using ToDo_App_Backend.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services.AddDbContext<MyDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+//builder.Services.AddScoped<IToDoRepository, ToDoRepository>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -27,6 +31,13 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+});
 
 app.MapControllers();
 
