@@ -19,7 +19,6 @@ namespace ToDo_App_Backend.Controllers
             this._context = context;
         }
 
-        //Read all
         [HttpGet]
         public async Task<ActionResult<List<ToDo>>> GetToDos()
         {
@@ -27,7 +26,6 @@ namespace ToDo_App_Backend.Controllers
             return Ok(todos);
         }
 
-        //Read single
         [HttpGet("{id}")]
         public async Task<ActionResult<ToDo>> GetToDo(int id)
         {
@@ -36,10 +34,9 @@ namespace ToDo_App_Backend.Controllers
             {
                 return Ok(todo);
             }
-            return NotFound();
+            return NotFound(new { error = "Todos not found" });
         }
 
-        //Add
         [HttpPost]
         public async Task<ActionResult<List<ToDo>>> AddToDo(ToDo newToDo)
         {
@@ -55,7 +52,6 @@ namespace ToDo_App_Backend.Controllers
             return BadRequest();
         }
 
-        //Delete
         [HttpDelete]
         public async Task<ActionResult<List<ToDo>>> DeleteToDo(int id)
         {
@@ -70,7 +66,6 @@ namespace ToDo_App_Backend.Controllers
             }
             return BadRequest();
         }
-
 
         [HttpPut]
         public async Task<ActionResult<ToDo>> UpdateToDo(ToDo updatedToDo)
@@ -87,9 +82,34 @@ namespace ToDo_App_Backend.Controllers
                     var todos = await _context.ToDos.ToListAsync();
                     return Ok(todos);
                 }
-                return NotFound();
+                return NotFound(new { error = "Todo not found" });
             }
             return BadRequest();
         }
+
+        //update status
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateTodoStatus(int id)
+        {
+            var existingTodo = await _context.ToDos.FindAsync(id);
+            if (existingTodo == null)
+            {
+                return NotFound(new { error = "Todo not found" });
+            }
+
+            existingTodo.IsCompleted = !existingTodo.IsCompleted;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+
+            return Ok(existingTodo);
+        }
+
     }
 }
